@@ -34,7 +34,8 @@
         "hyperf/pool": "~1.1.0",
         "hyperf/process": "~1.1.0",
         "hyperf/redis": "~1.1.0",
-        "hyperf/utils": "~1.1.0"
+        "hyperf/utils": "~1.1.0",
+        "hyperf/websocket-server": "^1.1"
     },
     "require-dev": {
         "swoft/swoole-ide-helper": "^4.2",
@@ -78,5 +79,15 @@
         "analyse": "phpstan analyse --memory-limit 300M -l 0 -c phpstan.neon ./app ./config",
         "start": "php ./bin/hyperf.php start",
         "init-proxy": "init-proxy.sh"
+    },
+    "repositories": {
+        "hyperf": {
+            "type": "path",
+            "url": "../hyperf/src/*"
+        },
+        "packagist": {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer"
+        }
     }
 }
