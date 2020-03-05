@@ -3,9 +3,10 @@ version: '3'
 services:
     hyperf:
         build: .
-        image: wuchuheng/hyperf:0.0.1
+        image: wuchuheng/hyperf:dev
         ports:
             - "9501:9501"
+            - "25:25"
         volumes:
             - ./:/opt/www/
         privileged: true

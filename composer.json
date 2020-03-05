@@ -35,7 +35,9 @@
         "hyperf/process": "~1.1.0",
         "hyperf/redis": "~1.1.0",
         "hyperf/utils": "~1.1.0",
-        "hyperf/websocket-server": "^1.1"
+        "hyperf/websocket-server": "^1.1",
+        "hyperf/json-rpc": "^1.1",
+        "hyperf/rpc-server": "^1.1"
     },
     "require-dev": {
         "swoft/swoole-ide-helper": "^4.2",
@@ -81,10 +83,6 @@
         "init-proxy": "init-proxy.sh"
     },
     "repositories": {
-        "hyperf": {
-            "type": "path",
-            "url": "../hyperf/src/*"
-        },
         "packagist": {
             "type": "composer",
             "url": "https://mirrors.aliyun.com/composer"
