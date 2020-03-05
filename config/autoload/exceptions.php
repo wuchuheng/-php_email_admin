@@ -14,10 +14,10 @@ return [
     'handler' => [
         'http' => [
             App\Exception\Handler\AppExceptionHandler::class,
-	    \App\Exception\Handler\FooExceptionHandler::class,
         ],
         'smtp' => [
-	    /* \App\Exception\Handler\FooExceptionHandler::class, */
+	       // \App\Exception\Handler\FooExceptionHandler::class
+            App\Exception\Handler\AppExceptionHandler::class,
         ],
     ],
 ];

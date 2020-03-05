@@ -18,6 +18,13 @@ class IndexController extends AbstractController
 {
     public function index()
     {
-        throw new FooException('Foo Exception...', 800);
+        throw new \RuntimeException('test');
+
+        return 1;
+    }
+
+    public function excption()
+    {
+        var_dump(1);
     }
 }

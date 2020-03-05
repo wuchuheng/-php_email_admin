@@ -124,6 +124,7 @@ function change()
     global $serve;
     echo "🔄 Restart @ " . date('Y-m-d H:i:s') . PHP_EOL;
     Process::kill($serve->pid);
+    delDir('runtime');
     start();
 }
 

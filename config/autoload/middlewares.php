@@ -13,4 +13,7 @@ declare(strict_types=1);
 return [
     'http' => [
     ],
+    'smtp' => [
+         App\Smtp\MiddleWare\SmtpMiddleWare::class
+    ]
 ];

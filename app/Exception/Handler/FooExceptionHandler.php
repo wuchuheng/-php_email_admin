@@ -11,8 +11,7 @@ class FooExceptionHandler extends  ExceptionHandler
 {
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-	var_dump(111111111111111111111111111111111);
-
+        return new SwooleStream('500 Internal Server Error.');
     }
 
     /**

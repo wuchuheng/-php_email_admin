@@ -13,3 +13,4 @@ vendor/
 .phpunit*
 tags
 .phpcd/
+tmp.php
