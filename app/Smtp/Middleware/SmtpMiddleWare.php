@@ -24,7 +24,7 @@ class SmtpMiddleWare implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        throw new \RuntimeException(22222);
+        throw new \RuntimeException('I`m here!!!!!!!!!!!!');
         return $handler->handle($request);
     }
 }
