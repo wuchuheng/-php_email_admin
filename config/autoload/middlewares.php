@@ -14,6 +14,7 @@ return [
     'http' => [
     ],
     'smtp' => [
-         App\Smtp\MiddleWare\SmtpMiddleWare::class
+         App\Smtp\MiddleWare\SmtpMiddleWare::class,
+        \Hyperf\Session\Middleware\SessionMiddleware::class,
     ]
 ];

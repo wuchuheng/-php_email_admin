@@ -16,8 +16,7 @@ return [
             App\Exception\Handler\AppExceptionHandler::class,
         ],
         'smtp' => [
-	       // \App\Exception\Handler\FooExceptionHandler::class
-            App\Exception\Handler\AppExceptionHandler::class,
+	        \App\Exception\Handler\SmtpExceptionHandler::class
         ],
     ],
 ];

@@ -2,12 +2,50 @@ version: '3'
 
 services:
     hyperf:
-        build: .
+        build: ./docker_config/
         image: wuchuheng/hyperf:dev
+        restart: always
         ports:
             - "9501:9501"
             - "25:25"
         volumes:
             - ./:/opt/www/
         privileged: true
+        networks:
+          - default
+        depends_on:
+          - "redis"
+          - "mysql"
         container_name: hyperf_container
+    redis:
+        image: redis:${REDIS_VERSION}
+        restart: always
+        networks:
+          - default
+        container_name: redis_container
+    phpredisadmin:
+        image: erikdubbelboer/phpredisadmin:latest
+        ports:
+          - "${REDISMYADMIN_HOST_PORT}:80"
+        networks:
+          - default
+        depends_on:
+          - "redis"
+        environment:
+          - REDIS_1_HOST=redis
+          - REDIS_1_PORT=6379
+    mysql:
+        image: mysql:${MYSQL_VERSION}
+        ports:
+          - "${MYSQL_HOST_PORT}:3306"
+        volumes:
+          - ${MYSQL_CONF_FILE}:`/etc/mysql/conf.d/mysql.cnf`:ro
+          #- ${MYSQL_DATA_DIR}:/var/lib/mysql/:rw
+        restart: always
+        networks:
+          - default
+        environment:
+          MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+
+networks:
+    default:

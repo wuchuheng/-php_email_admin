@@ -9,7 +9,6 @@
 
 namespace App\Smtp;
 
-use http\Exception\RuntimeException;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\DispatcherInterface;
 use Hyperf\Contract\MiddlewareInitializerInterface;
@@ -24,14 +23,12 @@ use Hyperf\HttpServer\Contract\CoreMiddlewareInterface;
 use Hyperf\JsonRpc\CoreMiddleware;
 use Hyperf\JsonRpc\Exception\Handler\TcpExceptionHandler;
 use Hyperf\JsonRpc\ResponseBuilder;
-use Hyperf\JsonRpc\TcpServer;
 use Hyperf\Rpc\Protocol;
 use Hyperf\Rpc\ProtocolManager;
 use Hyperf\RpcServer\RequestDispatcher;
 use Hyperf\Server\Exception\InvalidArgumentException;
 use Hyperf\Server\ServerManager;
 use Hyperf\Utils\Context;
-use PDepend\Source\AST\ASTArtifactList\PackageArtifactFilter;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -39,11 +36,19 @@ use Psr\Log\LoggerInterface;
 use Swoole\Server as SwooleServer;
 use Hyperf\Rpc\Context as RpcContext;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\RpcServer\Server as RpcServer;
 use Throwable;
+use Hyperf\HttpServer\Annotation\Middlewares;
+use  App\Smtp\MiddleWare\SmtpMiddleWare;
+use Hyperf\Di\Annotation\Inject;
+
 
 class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
 {
+    /**
+     * @Inject()
+     * @var \Hyperf\Contract\SessionInterface
+     */
+    private $session;
 
     /**
      * @var \Hyperf\JsonRpc\ResponseBuilder
@@ -231,10 +236,6 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
 
     public function onConnect(SwooleServer $server, int $fd)
     {
-        // $server is the main server object, not the server object that this callback on.
-        /* @var \Swoole\Server\Port */
-        [$type, $port] = ServerManager::get($this->serverName);
-        $this->logger->debug(sprintf('Connect to %s:%d', $port->host, $port->port));
     }
 
     public function onReceive(SwooleServer $server, int $fd, int $fromId, string $data): void

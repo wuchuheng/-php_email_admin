@@ -51,7 +51,7 @@ WORKDIR /opt/www
 # COPY ./composer.* /opt/www/
 # RUN composer install --no-dev --no-scripts
 
-COPY . /opt/www
+COPY .. /opt/www
 RUN composer install --no-dev -o
 
 EXPOSE 9501
