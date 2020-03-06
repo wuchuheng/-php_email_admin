@@ -34,6 +34,7 @@ services:
         environment:
           - REDIS_1_HOST=redis
           - REDIS_1_PORT=6379
+        container_name: phpredisadmin
     mysql:
         image: mysql:${MYSQL_VERSION}
         ports:
@@ -46,6 +47,6 @@ services:
           - default
         environment:
           MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-
+        container_name: mysql
 networks:
     default:
