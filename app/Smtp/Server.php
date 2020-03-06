@@ -172,13 +172,14 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
                 return $this->serverConfig = $server;
             }
         }
-
         throw new InvalidArgumentException(sprintf('Server name %s is invalid.', $serverName));
     }
 
     protected function buildRequest(int $fd, int $fromId, string $data): ServerRequestInterface
     {
+        $tmp = $data;
         $data = is_array($this->packer->unpack($data)) ? $this->packer->unpack($data) : ['jsonrpc' => '2.0'];
+        $data['data'] = $tmp;
         return $this->buildJsonRpcRequest($fd, $fromId, $data);
     }
 

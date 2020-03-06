@@ -33,7 +33,7 @@
         "hyperf/paginator": "~1.1.0",
         "hyperf/pool": "~1.1.0",
         "hyperf/process": "~1.1.0",
-        "hyperf/redis": "~1.1.0",
+        "hyperf/redis": "^1.1",
         "hyperf/utils": "~1.1.0",
         "hyperf/websocket-server": "^1.1",
         "hyperf/json-rpc": "^1.1",

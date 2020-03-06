@@ -1,16 +1,28 @@
 <?php
 namespace App\Exception\Handler;
 
+use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 class SmtpExceptionHandler extends  ExceptionHandler
-
 {
+    /**
+     * @var StdoutLoggerInterface
+     */
+    protected $logger;
+
+    public function __construct(StdoutLoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        return new SwooleStream(get_class(new self()) . '500 Internal Server Error.');
+        $this->logger->error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
+        $this->logger->error($throwable->getTraceAsString());
+        return new SwooleStream( '500 Internal Server Error.');
     }
 
     public function isValid(Throwable $throwable): bool

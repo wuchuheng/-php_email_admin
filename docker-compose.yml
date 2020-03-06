@@ -40,7 +40,7 @@ services:
         ports:
           - "${MYSQL_HOST_PORT}:3306"
         volumes:
-          - ${MYSQL_CONF_FILE}:`/etc/mysql/conf.d/mysql.cnf`:ro
+          - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf:ro
           #- ${MYSQL_DATA_DIR}:/var/lib/mysql/:rw
         restart: always
         networks:
