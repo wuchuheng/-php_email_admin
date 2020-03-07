@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Exception\FooException;
+use App\Exception\SmtpNotImplementedException;
 
 class IndexController extends AbstractController
 {

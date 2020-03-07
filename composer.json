@@ -60,7 +60,7 @@
         "psr-4": {
             "App\\": "app/"
         },
-        "files": []
+        "files": ["app/Smtp/Helpers/functions.php"]
     },
     "autoload-dev": {
         "psr-4": {

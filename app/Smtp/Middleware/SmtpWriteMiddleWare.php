@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+/**
+ * Smtp service proces code.
+ *
+ */
 namespace App\Smtp\MiddleWare;
 
 use Hyperf\HttpMessage\Server\Response as Psr7Response;
@@ -15,10 +19,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Hyperf\Redis\RedisFactory;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
+use \App\Smtp\Util\Session;
 
 
 
-class SmtpMiddleWare implements MiddlewareInterface
+class SmtpWriteMiddleWare implements MiddlewareInterface
 {
     /**
      * @var ContainerInterface
@@ -38,10 +43,23 @@ class SmtpMiddleWare implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-//        $fd = $request->getAttribute('fd');
-//        var_dump($fd);
-//        $response = new Psr7Response();
-//        return $response->withBody(new SwooleStream('hello'));
-        return $handler->handle($request);
+        $data = $request->getAttribute('data');
+        $dir = getDirectiveByMsg($data);
+        $response = new Psr7Response();
+        switch ($dir) {
+            case "MAIL FROM":
+                $reply = smtp_pack("250 mail OK");
+                break;
+            case "RCPT to":
+                $reply = smtp_pack("250 mail Ok");
+                break;
+            case "DATA":
+                $reply = smtp_pack("354 End data with <CR><LF>.<CR><LF>");
+        }
+        if (!$dir) {
+            $reply = smtp_pack("250 mail Ok");
+        }
+        var_dump(smtp_unpack($data));
+        return $response->withBody(new SwooleStream($reply));
     }
 }

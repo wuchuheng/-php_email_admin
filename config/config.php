@@ -27,4 +27,17 @@ return [
             LogLevel::WARNING,
         ],
     ],
+    // smtp directive list.
+    'smtp_directives' => [
+        'HELO',
+        'MAIL FROM',
+        'RCPT TO',
+        'DATA',
+        'QUIT',
+        'REST',
+        'VRFY',
+        'EXPN',
+        'HELP'
+    ],
+    'smtp_session_prefix' => 'smtp_'
 ];

@@ -9,6 +9,7 @@
 
 namespace App\Smtp;
 
+use App\Smtp\Util\Session;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\DispatcherInterface;
 use Hyperf\Contract\MiddlewareInitializerInterface;
@@ -38,7 +39,7 @@ use Hyperf\Rpc\Context as RpcContext;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Throwable;
 use Hyperf\HttpServer\Annotation\Middlewares;
-use  App\Smtp\MiddleWare\SmtpMiddleWare;
+use  App\Smtp\MiddleWare\SmtpWriteMiddleWare;
 use Hyperf\Di\Annotation\Inject;
 
 
@@ -115,6 +116,8 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
      */
     protected $logger;
 
+    private $Session;
+
     public function __construct(
         ContainerInterface $container,
         RequestDispatcher $dispatcher,
@@ -128,6 +131,7 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
         $this->exceptionHandlerDispatcher = $exceptionDispatcher;
         $this->logger = $logger;
         $this->protocolManager = $protocolManager;
+        $this->Session  = $this->container->get(Session::class);
     }
 
     public function initCoreMiddleware(string $serverName): void
@@ -229,14 +233,22 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
 
 
 
-    protected function send(SwooleServer $server, int $fd, ResponseInterface $response): void
+    protected function send(SwooleServer $server, int $fd, ResponseInterface $response, string $data = ''): void
     {
+        if ($dir = getDirectiveByMsg($data)) {
+            $Session = $this->Session;
+            $Session->set($fd, 'prev_dir', $dir);
+        }
         $server->send($fd, (string)$response->getBody());
     }
 
 
     public function onConnect(SwooleServer $server, int $fd)
     {
+        $app_name = $this->container->get(ConfigInterface::class)->get('app_name');
+        $welcome = "220 welcome to {$app_name} System.";
+        $welcome = smtp_pack($welcome);
+        $server->send($fd, $welcome);
     }
 
     public function onReceive(SwooleServer $server, int $fd, int $fromId, string $data): void
@@ -262,13 +274,16 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
                 $response = $this->transferToResponse($response);
             }
             if ($response) {
-                $this->send($server, $fd, $response);
+                $this->send($server, $fd, $response, $data);
             }
         }
     }
 
     public function onClose(SwooleServer $Server, int $from_id, int $reactor_id)
     {
+        // 清空会话数据
+        $Session = $this->Session;
+        $Session->removeAllByFd($from_id);
     }
 
     protected function transferToResponse($response): ?ResponseInterface

@@ -5,7 +5,7 @@ namespace App\Exception;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Psr\Http\Message\ResponseInterface;
-use App\Exception\FooException;
+use App\Exception\SmtpNotImplementedException;
 use Swoole\Server as SwooleServer;
 use Hyperf\Server\Exception\ServerException;
 
@@ -15,15 +15,16 @@ class SmtpBaseException extends ServerException
 {
     public $msg;
 
-    public $fd;
-
     public $code;
 
-    public function __construct($data)
+    public function __construct(array $data = [])
     {
-        $this->msg  = $data['msg'];
-        $this->fd   = $data['fd'];
-        $this->code = $data['code'];
+        if (array_key_exists('msg', $data)) {
+            $this->msg  = $data['msg'];
+        }
+        if (array_key_exists('code', $data)) {
+            $this->code = $data['code'];
+        }
     }
 }
 

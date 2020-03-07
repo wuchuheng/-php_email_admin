@@ -6,6 +6,8 @@ use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
+use App\Exception\SmtpBaseException;
+
 class SmtpExceptionHandler extends  ExceptionHandler
 {
     /**
@@ -22,7 +24,13 @@ class SmtpExceptionHandler extends  ExceptionHandler
     {
         $this->logger->error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
         $this->logger->error($throwable->getTraceAsString());
-        return new SwooleStream( '500 Internal Server Error.');
+        if ($throwable instanceof SmtpBaseException) {
+            $msg = $throwable->code . ' ' . $throwable->msg;
+        } else {
+            $msg = '500 sorry，we make a mistake. (^o^)Y';
+        }
+        $msg = smtp_pack($msg);
+        return new SwooleStream($msg);
     }
 
     public function isValid(Throwable $throwable): bool
