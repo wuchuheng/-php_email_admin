@@ -1,6 +1,6 @@
 <?php
 /**
- * 监听HELO OR EHELO指令事件并返回回复消息.
+ * 监听Quit指令事件并返回回复消息.
  *
  * @author wuchuheng<wuchuheng@163.com>
  */
@@ -9,16 +9,20 @@ namespace App\Smtp\Listener;
 use App\Smtp\Util\Session;
 use Hyperf\Database\Events\QueryExecuted;
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Logger\LoggerFactory;
+use Hyperf\Utils\Arr;
+use Hyperf\Utils\Str;
+use Laminas\Stdlib\ResponseInterface;
+use PhpCsFixer\ConfigInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
+use Hyperf\Framework\Event\AfterWorkerStart;
 use \Redis;
-    use \App\Smtp\Event\{
-    HelloEvent
-};
+use App\Smtp\Event\{HelloEvent, QuitEvent};
 
-class HeloListener implements ListenerInterface
+class QuitListener implements ListenerInterface
 {
     /**
      * @var LoggerInterface
@@ -49,7 +53,7 @@ class HeloListener implements ListenerInterface
     public function listen(): array
     {
         return [
-            HelloEvent::class
+            QuitEvent::class
         ];
     }
 
@@ -60,26 +64,8 @@ class HeloListener implements ListenerInterface
     {
         $msg = $Event->msg;
         $fd = $Event->fd;
-        $dir = getDirectiveByMsg($msg);
-        // 打招呼应答
-        if ($this->Container->get(Session::class)->getStatusByFd($fd) === 'int') {
-            if (!in_array($dir, ['EHLO', 'HELO'])) {
-                throw new SmtpBaseException([
-                    'msg' => 'Error: send HELO/EHLO first',
-                    'code' => 503
-                ]);
-            }
-            if (!preg_match('/^(:?HELO)|(:?EHLO)\s+\w+/', $msg)) {
-                throw new SmtpBadSyntxException();
-            } else {
-                $Session = $this->Container->get(Session::class);
-                $Session->set($fd, 'status', 'HELO');
-
-            }
-        }
-
-        if (in_array($dir, ['EHLO', 'HELO'])) {
-            $Event->reply = smtp_pack("250 OK");
-        }
+        // 断开应答
+        $reply = smtp_pack("221 Bye");
+        $Event->reply = $reply;
     }
 }

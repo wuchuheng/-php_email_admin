@@ -235,21 +235,28 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
 
     protected function send(SwooleServer $server, int $fd, ResponseInterface $response, string $data = ''): void
     {
-        // 登记指令用于判断当前的状态
+        // 非断开就发送数据
+        if ($server->exist($fd) && $reply = (string)$response->getBody()) {
+            $server->send($fd, $reply);
+        }
+        // 登记指令用于下次判断当前的状态
         if ($dir = getDirectiveByMsg($data)) {
             $Session = $this->Session;
             $Session->set($fd, 'prev_dir', $dir);
+            // 有断开指令且不是写信状态就断开
+            $status = $this->Session->getStatusByFd($fd);
+            if ($dir === 'QUIT' && $status !== 'DATA') {
+
+                $server->close($fd);
+            }
         }
-        // 非断开指令就发送数据
-        if ($server->exist($fd) && $reply = (string)$response->getBody()) {
-            var_dump('reply:'. $reply);
-            $server->send($fd, $reply);
-        } 
+
     }
 
 
     public function onConnect(SwooleServer $server, int $fd)
     {
+        $app_name = config('app_name');
         $welcome = "220 welcome to {$app_name} System.";
         $welcome = smtp_pack($welcome);
         $server->send($fd, $welcome);

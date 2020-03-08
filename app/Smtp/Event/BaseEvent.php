@@ -9,7 +9,7 @@
 
 namespace App\Smtp\Event;
 
-class BaseReply
+class BaseEvent
 {
     /**
      * 消息
@@ -21,7 +21,7 @@ class BaseReply
      * 连接标识
      *
      */
-    
+
     public $fd;
 
     public function __construct(int $fd, string $msg)

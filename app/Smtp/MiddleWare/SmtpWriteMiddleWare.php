@@ -39,7 +39,7 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
      *
      */
     protected $Session;
-    
+
 
     public function __construct(
         ContainerInterface $container
@@ -54,7 +54,7 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
         $fd = $request->getAttribute('fd');
         $dir = getDirectiveByMsg($msg);
         $response = new Psr7Response();
-        
+
         switch ($dir) {
             case "MAIL FROM":
                 $reply = smtp_pack("250 mail OK");
@@ -70,7 +70,7 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
 
         !isset($reply) && $reply = smtp_pack("250 mail Ok");
 
-        var_dump($msg);
+//        var_dump($msg);
         return $response->withBody(new SwooleStream($reply));
     }
 }
