@@ -29,6 +29,7 @@ return [
     ],
     // smtp directive list.
     'smtp_directives' => [
+        'EHLO',
         'HELO',
         'MAIL FROM',
         'RCPT TO',

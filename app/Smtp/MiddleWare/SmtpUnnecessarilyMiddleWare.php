@@ -1,7 +1,7 @@
 <?php
 
 /**
- * the responsibility is to unneeded the legal data.
+ * 用于过虑发送的数据是否合法.
  *
  * @author wuchuheng <wuchuheng@163.com>
  */
@@ -42,16 +42,17 @@ class SmtpUnnecessarilyMiddleWare implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $fd = $request->getAttribute('fd');
-        $data = smtp_unpack($request->getAttribute('data'));
-        $status = $this->container->get(Session::class)->getStatusByFd($fd);
-        $is_edit = in_array($status, ['MAIL FROM', 'RCPT TO', 'DATA']);
-        $config = $this->container->get(ConfigInterface::class);
-        $is_dir = getDirectiveByMsg($data);
-        if ($is_edit || $is_dir) {
+        /* $fd = $request->getAttribute('fd'); */
+        /* $data = smtp_unpack($request->getAttribute('data')); */
+
+        /* $status = $this->container->get(Session::class)->getStatusByFd($fd); */
+        /* $is_edit = in_array($status, ['MAIL FROM', 'RCPT TO', 'DATA']); */
+        /* $config = $this->container->get(ConfigInterface::class); */
+        /* $is_dir = getDirectiveByMsg($data); */
+        /* if ($is_edit || $is_dir) { */
             return $handler->handle($request);
-        } else {
-            throw new SmtpNotImplementedException();
-        }
+        /* } else { */
+        /*     throw new SmtpNotImplementedException(); */
+        /* } */
     }
 }

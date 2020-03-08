@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- *  if the client don't say “HELO"  befor other directive,then go back.
+ *  连接端的smtp，打招呼和离开在这里应答.
  *
  */
 namespace App\Smtp\MiddleWare;
@@ -24,8 +24,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Hyperf\Redis\RedisFactory;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use \App\Smtp\Util\Session;
-
-
 
 class SmtpHelloMiddleWare implements MiddlewareInterface
 {
@@ -50,14 +48,21 @@ class SmtpHelloMiddleWare implements MiddlewareInterface
         $fd = $request->getAttribute('fd');
         $msg = smtp_unpack($request->getAttribute('data'));
         $dir = getDirectiveByMsg($msg);
+        // 断开应答
+        if ($dir === 'QUIT') {
+            $response = new Psr7Response();
+            $reply = smtp_pack("221 Bye");
+            return $response->withBody(new SwooleStream($reply));
+        }
+        // 打招呼应答
         if ($this->container->get(Session::class)->getStatusByFd($fd) === 'int') {
-            if ($dir !== 'HELO') {
+            if (!in_array($dir, ['EHLO', 'HELO'])) {
                 throw new SmtpBaseException([
                     'msg' => 'Error: send HELO/EHLO first',
                     'code' => 503
                 ]);
             }
-            if (!preg_match('/^(:?HELO)\s+\w+/', $msg)) {
+            if (!preg_match('/^(:?HELO)|(:?EHLO)\s+\w+/', $msg)) {
                 throw new SmtpBadSyntxException();
             } else {
                 $Session = $this->container->get(Session::class);
@@ -65,11 +70,12 @@ class SmtpHelloMiddleWare implements MiddlewareInterface
 
             }
         }
-        if ($dir === 'HELO') {
+        if (in_array($dir, ['EHLO', 'HELO'])) {
             $response = new Psr7Response();
             $reply = smtp_pack("250 OK");
             return $response->withBody(new SwooleStream($reply));
         }
+        // 已打过招呼则进行下一层
         return $handler->handle($request);
     }
 }

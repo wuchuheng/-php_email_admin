@@ -36,7 +36,7 @@ return [
             'namespace' => 'App\\Listener',
         ],
         'middleware' => [
-            'namespace' => 'App\\Middleware',
+            'namespace' => 'App\\MiddleWare',
         ],
         'Process' => [
             'namespace' => 'App\\Processes',

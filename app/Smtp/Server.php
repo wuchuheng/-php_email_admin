@@ -235,11 +235,15 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
 
     protected function send(SwooleServer $server, int $fd, ResponseInterface $response, string $data = ''): void
     {
+        // 登记指令用于判断当前的状态
         if ($dir = getDirectiveByMsg($data)) {
             $Session = $this->Session;
             $Session->set($fd, 'prev_dir', $dir);
         }
-        $server->send($fd, (string)$response->getBody());
+        // 非常断开指令就发送数据
+        if ($server->exist($fd)) {
+            $server->send($fd, (string)$response->getBody());
+        } 
     }
 
 
@@ -281,7 +285,7 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
 
     public function onClose(SwooleServer $Server, int $from_id, int $reactor_id)
     {
-        // 清空会话数据
+        // 清空断开的会话数据,防止同一fd数据相混
         $Session = $this->Session;
         $Session->removeAllByFd($from_id);
     }

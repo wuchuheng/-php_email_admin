@@ -14,6 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Hyperf\HttpMessage\Server\Response as Psr7Response;
 
 class SmtpNormalDirectiveMiddleWare implements MiddlewareInterface
 {
@@ -35,13 +36,13 @@ class SmtpNormalDirectiveMiddleWare implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $msg = smtp_unpack($request->getAttribute('data'));
-        $dir = getDirectiveByMsg($msg);
-        $response = new Psr7Response();
-        $fd = $request->getAttribute('fd');
-//        $reply = smtp_pack("250 OK");
-        $Session = $this->container->get(Session::class);
-        $session_data =  $Session->getAllByFd($fd);
+        /* $msg = smtp_unpack($request->getAttribute('data')); */
+        /* $dir = getDirectiveByMsg($msg); */
+        /* $response = new Psr7Response(); */
+        /* $fd = $request->getAttribute('fd'); */
+/* //        $reply = smtp_pack("250 OK"); */
+        /* $Session = $this->container->get(Session::class); */
+        /* $session_data =  $Session->getAllByFd($fd); */
 
         return $handler->handle($request);
     }

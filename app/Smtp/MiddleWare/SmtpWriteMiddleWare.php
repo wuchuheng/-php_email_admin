@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Smtp service proces code.
+ * 邮件编辑处理
  *
  */
 namespace App\Smtp\MiddleWare;
@@ -20,8 +20,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Hyperf\Redis\RedisFactory;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use \App\Smtp\Util\Session;
-
-
+use \App\Smtp\Model\Email;
 
 class SmtpWriteMiddleWare implements MiddlewareInterface
 {
@@ -34,6 +33,7 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
      * @var ResponseBuilder
      */
     protected $responseBuilder;
+    
 
     public function __construct(
         ContainerInterface $container
@@ -43,8 +43,8 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $data = $request->getAttribute('data');
-        $dir = getDirectiveByMsg($data);
+        $msg = smtp_unpack($request->getAttribute('data'));
+        $dir = getDirectiveByMsg($msg);
         $response = new Psr7Response();
         switch ($dir) {
             case "MAIL FROM":
@@ -56,10 +56,11 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
             case "DATA":
                 $reply = smtp_pack("354 End data with <CR><LF>.<CR><LF>");
         }
-        if (!$dir) {
-            $reply = smtp_pack("250 mail Ok");
-        }
-        var_dump(smtp_unpack($data));
+
+        !isset($reply) && $reply = smtp_pack("250 mail Ok");
+
+        /* var_dump($msg); */
         return $response->withBody(new SwooleStream($reply));
     }
 }
+

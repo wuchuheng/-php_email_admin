@@ -8,9 +8,13 @@ use function foo\func;
  * @return bool|string
  *
  */
-function smtp_unpack(array $data): string
+function smtp_unpack($data): string
 {
-    return substr($data['data'], 0, -2);
+    if (is_array($data) && array_key_exists('data', $data)) {
+        return substr($data['data'], 0, -2);
+    }  else {
+        return '';
+    }
 }
 
 /**
