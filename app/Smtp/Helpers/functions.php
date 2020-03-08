@@ -32,7 +32,7 @@ function smtp_pack(string $message): string
  * @param string $msg
  * @return mixed
  */
-function getDirectiveByMsg(string $msg = '')
+function getDirectiveByMsg(?string $msg = '')
 {
     if ($msg === '') {
         return '';

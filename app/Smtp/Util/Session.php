@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * 用于管理当前连接的会话数据.
+ *
+ */
+
 namespace App\Smtp\Util;
 
 use Hyperf\JsonRpc\ResponseBuilder;
@@ -95,12 +100,12 @@ class Session
     }
 
     /**
-     *  清空会话数据
-     */
-     public function removeAllByFd(int $fd): bool
-     {
-         $redis_key = $this->getKey($fd);
-         $Redis = $this->container->get(\Redis::class);
-         return (bool) $Redis->del($redis_key);
-     }
+    *  清空会话数据
+    */
+    public function removeAllByFd(int $fd): bool
+    {
+        $redis_key = $this->getKey($fd);
+        $Redis = $this->container->get(\Redis::class);
+        return (bool) $Redis->del($redis_key);
+    }
 }

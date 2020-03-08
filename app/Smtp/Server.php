@@ -240,16 +240,16 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
             $Session = $this->Session;
             $Session->set($fd, 'prev_dir', $dir);
         }
-        // 非常断开指令就发送数据
-        if ($server->exist($fd)) {
-            $server->send($fd, (string)$response->getBody());
+        // 非断开指令就发送数据
+        if ($server->exist($fd) && $reply = (string)$response->getBody()) {
+            var_dump('reply:'. $reply);
+            $server->send($fd, $reply);
         } 
     }
 
 
     public function onConnect(SwooleServer $server, int $fd)
     {
-        $app_name = $this->container->get(ConfigInterface::class)->get('app_name');
         $welcome = "220 welcome to {$app_name} System.";
         $welcome = smtp_pack($welcome);
         $server->send($fd, $welcome);
@@ -286,8 +286,7 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
     public function onClose(SwooleServer $Server, int $from_id, int $reactor_id)
     {
         // 清空断开的会话数据,防止同一fd数据相混
-        $Session = $this->Session;
-        $Session->removeAllByFd($from_id);
+        /* $this->Session->removeAllByFd($from_id); */
     }
 
     protected function transferToResponse($response): ?ResponseInterface
@@ -298,7 +297,6 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
         }
         return null;
     }
-
 
     protected function getContext()
     {

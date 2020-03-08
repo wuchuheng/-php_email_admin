@@ -24,6 +24,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Hyperf\Redis\RedisFactory;
 use Psr\Http\Message\ResponseInterface as HttpResponse;
 use \App\Smtp\Util\Session;
+use Hyperf\Di\Annotation\Inject;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use \App\Smpt\Event\{
+    \App\Smpt\Event\
+    HelloReply
+};
 
 class SmtpHelloMiddleWare implements MiddlewareInterface
 {
@@ -37,6 +43,12 @@ class SmtpHelloMiddleWare implements MiddlewareInterface
      */
     protected $responseBuilder;
 
+    /**
+    * @Inject()
+    * @var EventDispatcherInterface
+    */
+    private $EventDispatcher;
+
     public function __construct(
         ContainerInterface $container
     ){
@@ -46,35 +58,9 @@ class SmtpHelloMiddleWare implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $fd = $request->getAttribute('fd');
-        $msg = smtp_unpack($request->getAttribute('data'));
-        $dir = getDirectiveByMsg($msg);
-        // 断开应答
-        if ($dir === 'QUIT') {
-            $response = new Psr7Response();
-            $reply = smtp_pack("221 Bye");
-            return $response->withBody(new SwooleStream($reply));
-        }
-        // 打招呼应答
-        if ($this->container->get(Session::class)->getStatusByFd($fd) === 'int') {
-            if (!in_array($dir, ['EHLO', 'HELO'])) {
-                throw new SmtpBaseException([
-                    'msg' => 'Error: send HELO/EHLO first',
-                    'code' => 503
-                ]);
-            }
-            if (!preg_match('/^(:?HELO)|(:?EHLO)\s+\w+/', $msg)) {
-                throw new SmtpBadSyntxException();
-            } else {
-                $Session = $this->container->get(Session::class);
-                $Session->set($fd, 'status', 'HELO');
+        $msg  = $request->getAttribute('msg');
+        $this->EventDispatcher->dispatch(new HelloReply($fd, $msg));
 
-            }
-        }
-        if (in_array($dir, ['EHLO', 'HELO'])) {
-            $response = new Psr7Response();
-            $reply = smtp_pack("250 OK");
-            return $response->withBody(new SwooleStream($reply));
-        }
         // 已打过招呼则进行下一层
         return $handler->handle($request);
     }

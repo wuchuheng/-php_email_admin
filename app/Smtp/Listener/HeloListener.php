@@ -1,7 +1,6 @@
 <?php
-
 /**
- * 用于启服务后初始化数据.
+ * 监听HELO OR EHELO指令事件并返回回复消息.
  *
  * @author wuchuheng<wuchuheng@163.com>
  */
@@ -17,9 +16,11 @@ use Psr\Log\LoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Framework\Event\AfterWorkerStart;
 use \Redis;
+use \App\Smtp\Event\{
+    HelloReply
+};
 
-
-class SmtpServerStartListener implements ListenerInterface
+class HeloListener implements ListenerInterface
 {
     /**
      * @var LoggerInterface
@@ -40,7 +41,7 @@ class SmtpServerStartListener implements ListenerInterface
     public function listen(): array
     {
         return [
-            AfterWorkerStart::class
+            HelloReply::class
         ];
     }
 
@@ -49,12 +50,6 @@ class SmtpServerStartListener implements ListenerInterface
      */
     public function process(object $Event)
     {
-        // :xxx 由于多个进程被初始化多次.实际上一次就够了
-        $Redis = $this->Redis;
-        $smtp_session_prefix = config('smtp_session_prefix');
-        $session_keys = $Redis->keys("{$smtp_session_prefix}*");
-        foreach ($session_keys as $session_key) {
-            $Redis->del($session_key);
-        }
+        var_dump($Event->fd, $Event->msg);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 用于过虑发送的数据是否合法.
+ * 这是第一层: 过虑层.用于过滤合法的数据.
  *
  * @author wuchuheng <wuchuheng@163.com>
  */
@@ -42,17 +42,15 @@ class SmtpUnnecessarilyMiddleWare implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /* $fd = $request->getAttribute('fd'); */
-        /* $data = smtp_unpack($request->getAttribute('data')); */
-
-        /* $status = $this->container->get(Session::class)->getStatusByFd($fd); */
-        /* $is_edit = in_array($status, ['MAIL FROM', 'RCPT TO', 'DATA']); */
-        /* $config = $this->container->get(ConfigInterface::class); */
-        /* $is_dir = getDirectiveByMsg($data); */
-        /* if ($is_edit || $is_dir) { */
+        $fd = $request->getAttribute('fd');
+        $msg = smtp_unpack($request->getAttribute('data'));
+        $status = $this->container->get(Session::class)->getStatusByFd($fd);
+        $is_dir = getDirectiveByMsg($msg);
+        // 是命令行，或者编辑状态就放行
+        if ($status === 'DATA' || $is_dir) {
             return $handler->handle($request);
-        /* } else { */
-        /*     throw new SmtpNotImplementedException(); */
-        /* } */
+        } else {
+            throw new SmtpNotImplementedException();
+        }
     }
 }
