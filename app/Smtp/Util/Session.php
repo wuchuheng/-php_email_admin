@@ -133,7 +133,8 @@ class Session
     {
         return (bool) $this->set($fd, 'is_hello', 0)
             && $this->set($fd, 'is_sequence', 0)
-            && $this->set($fd, 'sequence_dirs', json_encode([]));
+            && $this->set($fd, 'sequence_dirs', json_encode([]))
+            && $this->set($fd, 'email', '');
     }
 
     /**
@@ -169,5 +170,19 @@ class Session
         $dirs = $this->get($fd, 'sequence_dirs');
         $dirs = json_decode($dirs, true);
         return $dirs;
+    }
+
+    /**
+     * 缓存邮件内容
+     *
+     * @param int $fd
+     * @param string $content
+     * @return bool
+     */
+    public function cacheEmail(int $fd, string $content = ''): bool
+    {
+        $email = $this->get($fd, 'email');
+        $email .= $content;
+        return (bool) $this->set($fd, 'email', $email);
     }
 }

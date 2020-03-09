@@ -9,14 +9,14 @@
 namespace App\Smtp\Listener;
 
 
-use App\Smtp\Event\HelloEvent;
 use App\Smtp\Event\MailFromEvent;
 use App\Smtp\Util\Session;
 use Hyperf\Database\Events\QueryExecuted;
 use Hyperf\Event\Contract\ListenerInterface;
-use Hyperf\Logger\LoggerFactory;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
+use \App\Exception\{
+    SmtpBadSyntxException
+};
 
 class MailFromListener implements ListenerInterface
 {
@@ -28,7 +28,7 @@ class MailFromListener implements ListenerInterface
     /**
      * @var Session
      */
-    private  $Session;
+    private $Session;
     /**
      * @var ContainerInterface
      */
@@ -56,9 +56,19 @@ class MailFromListener implements ListenerInterface
         $msg = $Event->msg;
         $fd = $Event->fd;
         $dir = getDirectiveByMsg($msg);
+        // 验证报文格式
+        $patten = "/<([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+)>/";
+        if (preg_match($patten, $msg, $result)) {
+            if (count($result) > 2) {
+                throw new SmtpBadSyntxException();
+            }
+        } else {
+            throw new SmtpBadSyntxException();
+        }
         $this->Session->set($fd, 'status', $dir);
         $this->Session->set($fd, 'is_sequence', 1);
-        $this->Session->set($fd, 'sequence_dirs', json_encode(['RCPC TO']));
+        $this->Session->set($fd, 'sequence_dirs', json_encode(['RCPC TO', 'QUIT']));
         $Event->reply = smtp_pack("250 MAIL OK");
+        $this->Session->cacheEmail($fd, smtp_pack($msg));
     }
 }
