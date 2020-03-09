@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf-cloud/hyperf/blob/master/LICENSE
  */
 
-use App\Smtp\MiddleWare\SmtpHelloMiddleWare;
+use App\Smtp\MiddleWare\SmtpReplyMiddleWare;
 use App\Smtp\MiddleWare\SmtpNormalDirectiveMiddleWare;
 
 return [
@@ -18,8 +18,7 @@ return [
     ],
     'smtp' => [
         \App\Smtp\MiddleWare\SmtpUnnecessarilyMiddleWare::class, // 语法过虑
-        \App\Smtp\MiddleWare\SmtpHelloMiddleWare::class, // 所有合法的指令的前提指令 HELLO过虑
-        \App\Smtp\MiddleWare\SmtpNormalDirectiveMiddleWare::class, // 正常指令过虑
+        \App\Smtp\MiddleWare\SmtpReplyMiddleWare::class, // 指令回复
         \App\Smtp\MiddleWare\SmtpWriteMiddleWare::class, // 写信
     ]
 ];

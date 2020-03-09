@@ -100,6 +100,21 @@ class Session
     }
 
     /**
+     * get session key.
+     *
+     * @param int $fd
+     * @return string
+     */
+
+    public function get(int $fd, string $hkey): string
+    {
+        $key = $this->getKey($fd);
+        $Redis = $this->container->get(\Redis::class);
+        $value = $Redis->hGet($key,$hkey);
+        return $value;
+    }
+
+    /**
     *  清空会话数据
     */
     public function removeAllByFd(int $fd): bool
@@ -107,5 +122,52 @@ class Session
         $redis_key = $this->getKey($fd);
         $Redis = $this->container->get(\Redis::class);
         return (bool) $Redis->del($redis_key);
+    }
+
+    /**
+     * 初始化连接会话数据
+     * @param int $fd
+     * @return bool
+     */
+    public function init(int $fd): bool
+    {
+        return (bool) $this->set($fd, 'is_hello', 0)
+            && $this->set($fd, 'is_sequence', 0)
+            && $this->set($fd, 'sequence_dirs', json_encode([]));
+    }
+
+    /**
+     * 是否已经打招呼了
+     *
+     * @param int $fd
+     * @return bool
+     */
+    public function isHello(int $fd): bool
+    {
+        return (bool) $this->get($fd, 'is_hello');
+    }
+
+    /**
+     * 是否进入顺序模式
+     *
+     * @param int $fd
+     * @return boole
+     */
+    public function isSequence(int $fd): bool
+    {
+        return (bool) $this->get($fd, 'is_sequence');
+    }
+
+    /**
+     *  获取顺序指令合集
+     *
+     * @param int $fd
+     * @return array
+     */
+    public function getSequenceDir(int $fd): array
+    {
+        $dirs = $this->get($fd, 'sequence_dirs');
+        $dirs = json_decode($dirs, true);
+        return $dirs;
     }
 }

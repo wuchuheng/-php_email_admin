@@ -3,15 +3,18 @@
 declare(strict_types=1);
 
 /**
- *  连接端的smtp，打招呼和离开在这里应答.
+ *  这是第2层:smtp指令回复层.对指令做出正确的回复
  *
+ *  @author wuchuheng <wuchuheng@163.com>
+ *  @licence MIT
  */
+
 namespace App\Smtp\MiddleWare;
 
+use App\Smtp\Event\MailFromEvent;
 use App\Smtp\Event\QuitEvent;
-use App\Exception\{SmtpBadSequenceException, SmtpBaseException, SmtpBadSyntxException};
+use App\Exception\{SmtpBadSequenceException};
 use Hyperf\HttpMessage\Server\Response as Psr7Response;
-use Hyperf\HttpMessage\Stream\SwooleFileStream;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\JsonRpc\ResponseBuilder;
 use Psr\Container\ContainerInterface;
@@ -19,14 +22,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Hyperf\Redis\RedisFactory;
-use Psr\Http\Message\ResponseInterface as HttpResponse;
 use \App\Smtp\Util\Session;
 use Hyperf\Di\Annotation\Inject;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use \App\Smtp\Event\HelloEvent;
 
-    class SmtpHelloMiddleWare implements MiddlewareInterface
+    class SmtpReplyMiddleWare implements MiddlewareInterface
     {
         /**
          * @var ContainerInterface
@@ -70,6 +71,9 @@ use \App\Smtp\Event\HelloEvent;
                     break;
                 case 'QUIT':
                     $Response = $this->EventDispatcher->dispatch(new QuitEvent($fd, $msg));
+                    break;
+                case 'MAIL FROM':
+                    $Response = $this->EventDispatcher->dispatch(new MailFromEvent($fd, $msg));
                     break;
                 default:
                     throw new SmtpBadSequenceException();

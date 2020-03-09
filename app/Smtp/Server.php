@@ -260,6 +260,8 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
         $welcome = "220 welcome to {$app_name} System.";
         $welcome = smtp_pack($welcome);
         $server->send($fd, $welcome);
+        // 连接会话初始化
+        $this->container->get(Session::class)->init($fd);
     }
 
     public function onReceive(SwooleServer $server, int $fd, int $fromId, string $data): void

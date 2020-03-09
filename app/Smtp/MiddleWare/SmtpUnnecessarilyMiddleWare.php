@@ -15,7 +15,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use App\Exception\SmtpNotImplementedException;
+use App\Exception\{
+    SmtpNotImplementedException,
+    SmtpBadSequenceException
+};
 
 class SmtpUnnecessarilyMiddleWare implements MiddlewareInterface
 {
@@ -46,8 +49,20 @@ class SmtpUnnecessarilyMiddleWare implements MiddlewareInterface
         $msg = smtp_unpack($request->getAttribute('data'));
         $status = $this->container->get(Session::class)->getStatusByFd($fd);
         $is_dir = getDirectiveByMsg($msg);
-        // 是命令行，或者编辑状态就放行
+        $Session = $this->container->get(Session::class);
+        // 是合法命令行，或者编辑状态就放行
         if ($status === 'DATA' || $is_dir) {
+            // 检测连接会话是否打过招呼
+            if (!$Session->isHello($fd) && !in_array($is_dir, ['HELO', 'EHLO'])) {
+                throw new SmtpBadSequenceException([
+                    'msg' => 'send HELO/EHLO first'
+                ]);
+            }
+            // 检测是否有顺指令
+            if ($Session->isSequence($fd) && !in_array($is_dir, $Session->getSequenceDir($fd))) {
+                throw new SmtpBadSequenceException();
+            }
+            // 放行，进入下一层
             return $handler->handle($request);
         } else {
             throw new SmtpNotImplementedException();

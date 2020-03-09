@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Quit 指令应答事件.
+ * MAIL FROM 指令应答事件.
  *
  *  @author wuchuheng <wuchuheng@163.com>
  *  @licence MIT
@@ -9,7 +9,4 @@
 
 namespace App\Smtp\Event;
 
-class QuitEvent extends BaseEvent
-{
-
-}
+class MailFromEvent extends BaseEvent{}

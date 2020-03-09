@@ -21,8 +21,12 @@ class BaseEvent
      * 连接标识
      *
      */
-
     public $fd;
+
+    /**
+     * 事件处理回复
+     */
+    public $reply;
 
     public function __construct(int $fd, string $msg)
     {

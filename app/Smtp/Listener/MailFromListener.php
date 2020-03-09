@@ -1,59 +1,50 @@
 <?php
 /**
- * 监听Quit指令事件并返回回复消息.
- *
- * @author wuchuheng<wuchuheng@163.com>
+ * 监听MAIL FROM指令事件并返回回复消息.
+ * Author Wuchuheng<wuchuheng@163.com>
+ * Licence MIT
+ * DATE 2020/3/9
  */
+
 namespace App\Smtp\Listener;
 
+
+use App\Smtp\Event\HelloEvent;
+use App\Smtp\Event\MailFromEvent;
 use App\Smtp\Util\Session;
 use Hyperf\Database\Events\QueryExecuted;
-use Hyperf\Di\Annotation\Inject;
-use Hyperf\HttpMessage\Stream\SwooleStream;
+use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Logger\LoggerFactory;
-use Hyperf\Utils\Arr;
-use Hyperf\Utils\Str;
-use Laminas\Stdlib\ResponseInterface;
-use PhpCsFixer\ConfigInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use Hyperf\Event\Contract\ListenerInterface;
-use Hyperf\Framework\Event\AfterWorkerStart;
-use \Redis;
-use App\Smtp\Event\{HelloEvent, QuitEvent};
 
-class QuitListener implements ListenerInterface
+class MailFromListener implements ListenerInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     /**
      * @var Redis
      */
     private $Redis;
 
     /**
-     * @Inject()
      * @var Session
      */
     private  $Session;
-
-
+    /**
+     * @var ContainerInterface
+     */
     private $Container;
 
     public function __construct(ContainerInterface $container)
     {
-        $this->logger = $container->get(LoggerFactory::class)->get('sql');
         $this->Redis = $container->get(\Redis::class);
         $this->Container = $container;
+        $this->Session = $container->get(Session::class);
     }
 
     public function listen(): array
     {
         return [
-            QuitEvent::class
+            MailFromEvent::class
         ];
     }
 
@@ -64,8 +55,10 @@ class QuitListener implements ListenerInterface
     {
         $msg = $Event->msg;
         $fd = $Event->fd;
-        // 断开应答
-        $reply = smtp_pack("221 Bye");
-        $Event->reply = $reply;
+        $dir = getDirectiveByMsg($msg);
+        $this->Session->set($fd, 'status', $dir);
+        $this->Session->set($fd, 'is_sequence', 1);
+        $this->Session->set($fd, 'sequence_dirs', json_encode(['RCPC TO']));
+        $Event->reply = smtp_pack("250 MAIL OK");
     }
 }

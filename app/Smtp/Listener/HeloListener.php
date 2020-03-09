@@ -61,23 +61,13 @@ class HeloListener implements ListenerInterface
         $msg = $Event->msg;
         $fd = $Event->fd;
         $dir = getDirectiveByMsg($msg);
-        // 打招呼应答
-        if ($this->Container->get(Session::class)->getStatusByFd($fd) === 'int') {
-            if (!in_array($dir, ['EHLO', 'HELO'])) {
-                throw new SmtpBaseException([
-                    'msg' => 'Error: send HELO/EHLO first',
-                    'code' => 503
-                ]);
-            }
-            if (!preg_match('/^(:?HELO)|(:?EHLO)\s+\w+/', $msg)) {
-                throw new SmtpBadSyntxException();
-            } else {
-                $Session = $this->Container->get(Session::class);
-                $Session->set($fd, 'status', 'HELO');
-
-            }
+        if (!preg_match('/^(:?HELO)|(:?EHLO)\s+\w+/', $dir)) {
+            throw new SmtpBadSyntxException();
+        } else {
+            $Session = $this->Container->get(Session::class);
+            $Session->set($fd, 'status', 'HELO');
+            $Session->set($fd, 'is_hello', 1);
         }
-
         if (in_array($dir, ['EHLO', 'HELO'])) {
             $Event->reply = smtp_pack("250 OK");
         }
