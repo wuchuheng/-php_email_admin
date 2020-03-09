@@ -40,11 +40,16 @@ function getDirectiveByMsg(?string $msg = '')
         $msg = strtoupper($msg);
         $smtp_directives = config('smtp_directives');
         foreach ($smtp_directives as &$el) {
+            $el = str_replace(' ', '\s+', $el);
             $el = ':?' . $el;
         }
         $partten = "/^(" . implode('|', $smtp_directives) . ")/";
         (bool) $is_match = preg_match($partten, $msg, $result);
         if ($is_match) {
+            // 还原多空格指令
+            if ($dir = preg_replace('/\s+/', ' ', reset($result))) {
+                return $dir;
+            }
             return reset($result);
         } else {
             return false;

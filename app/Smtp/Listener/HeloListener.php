@@ -17,6 +17,7 @@ use \Redis;
     use \App\Smtp\Event\{
     HelloEvent
 };
+use  App\Smtp\Validate\HeloValidate;
 
 class HeloListener implements ListenerInterface
 {
@@ -61,15 +62,10 @@ class HeloListener implements ListenerInterface
         $msg = $Event->msg;
         $fd = $Event->fd;
         $dir = getDirectiveByMsg($msg);
-        if (!preg_match('/^(:?HELO)|(:?EHLO)\s+\w+/', $dir)) {
-            throw new SmtpBadSyntxException();
-        } else {
-            $Session = $this->Container->get(Session::class);
-            $Session->set($fd, 'status', 'HELO');
-            $Session->set($fd, 'is_hello', 1);
-        }
-        if (in_array($dir, ['EHLO', 'HELO'])) {
-            $Event->reply = smtp_pack("250 OK");
-        }
+        (new HeloValidate())->goCheck($fd, $msg);
+        $Session = $this->Container->get(Session::class);
+        $Session->set($fd, 'status', 'HELO');
+        $Session->set($fd, 'is_hello', 1);
+        $Event->reply = smtp_pack("250 OK");
     }
 }

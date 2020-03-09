@@ -14,5 +14,6 @@ return [
     \App\Smtp\Listener\SmtpServerStartListener::class,
     \App\Smtp\Listener\HeloListener::class,
     \App\Smtp\Listener\QuitListener::class,
-    \App\Smtp\Listener\MailFromListener::class
+    \App\Smtp\Listener\MailFromListener::class,
+    \App\Smtp\Listener\RcptToListener::class
 ];

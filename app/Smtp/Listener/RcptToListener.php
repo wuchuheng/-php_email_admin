@@ -9,6 +9,7 @@
 namespace App\Smtp\Listener;
 
 use App\Smtp\Util\Session;
+use App\Smtp\Validate\MailerValidate;
 use Hyperf\Database\Events\QueryExecuted;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Logger\LoggerFactory;
@@ -58,6 +59,15 @@ class RcptToListener implements ListenerInterface
      */
     public function process(object $Event)
     {
-
+        $msg = $Event->msg;
+        $fd = $Event->fd;
+        $dir = getDirectiveByMsg($msg);
+        // 验证信封
+        (new MailerValidate())->goCheck($fd, $msg);
+        $this->Session->set($fd, 'status', $dir);
+        $this->Session->set($fd, 'is_sequence', 1);
+        $this->Session->set($fd, 'sequence_dirs', json_encode(['RCPT TO', 'QUIT', 'DATA']));
+        $Event->reply = smtp_pack("250 MAIL OK");
+        $this->Session->cacheEmail($fd, smtp_pack($msg));
     }
 }

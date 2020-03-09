@@ -19,6 +19,9 @@ use App\Exception\{
     SmtpNotImplementedException,
     SmtpBadSequenceException
 };
+use \App\Smtp\Validate\{
+    MailerValidate
+};
 
 class SmtpUnnecessarilyMiddleWare implements MiddlewareInterface
 {

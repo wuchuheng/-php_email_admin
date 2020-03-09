@@ -13,6 +13,7 @@ namespace App\Smtp\MiddleWare;
 
 use App\Smtp\Event\MailFromEvent;
 use App\Smtp\Event\QuitEvent;
+use App\Smtp\Event\RcptToEvent;
 use App\Exception\{SmtpBadSequenceException};
 use Hyperf\HttpMessage\Server\Response as Psr7Response;
 use Hyperf\HttpMessage\Stream\SwooleStream;
@@ -76,7 +77,7 @@ use \App\Smtp\Event\HelloEvent;
                     $Response = $this->EventDispatcher->dispatch(new MailFromEvent($fd, $msg));
                     break;
                 case 'RCPT TO':
-                    //
+                    $Response = $this->EventDispatcher->dispatch(new RcptToEvent($fd, $msg));
                     break;
                 default:
                     throw new SmtpBadSequenceException();
