@@ -38,7 +38,8 @@
         "hyperf/websocket-server": "^1.1",
         "hyperf/json-rpc": "^1.1",
         "hyperf/rpc-server": "^1.1",
-        "hyperf/session": "^1.1"
+        "hyperf/session": "^1.1",
+        "hyperf/validation": "^1.1"
     },
     "require-dev": {
         "swoft/swoole-ide-helper": "^4.2",

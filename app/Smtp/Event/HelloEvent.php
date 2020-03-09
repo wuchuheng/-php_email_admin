@@ -11,4 +11,5 @@ namespace App\Smtp\Event;
 
 class HelloEvent extends BaseEvent
 {
+
 }

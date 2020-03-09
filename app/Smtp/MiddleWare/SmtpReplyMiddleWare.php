@@ -58,7 +58,7 @@ use \App\Smtp\Event\HelloEvent;
         $dir = getDirectiveByMsg($msg);
         $status = $this->container->get(Session::class)->getStatusByFd($fd);
         if ($status === 'DATA') {
-            // 写信正文模式，进入下一层（写信层）
+            // 写信正文模式(DATA)，进入下一层（写信层）
             return $handler->handle($request);
         } else {
             // 指令应答
@@ -74,6 +74,9 @@ use \App\Smtp\Event\HelloEvent;
                     break;
                 case 'MAIL FROM':
                     $Response = $this->EventDispatcher->dispatch(new MailFromEvent($fd, $msg));
+                    break;
+                case 'RCPT TO':
+                    //
                     break;
                 default:
                     throw new SmtpBadSequenceException();
