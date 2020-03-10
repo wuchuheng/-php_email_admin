@@ -1,15 +1,12 @@
 <?php
 /**
- * 信封的收件地址事件(RCPT TO)
- * Author Wuchuheng<wuchuheng@163.com>
- * Licence MIT
- * DATE 2020/3/9
+ * 监听DATA指令事件并返回回复消息.
+ *
+ * @author wuchuheng<wuchuheng@163.com>
  */
-
 namespace App\Smtp\Listener;
 
 use App\Smtp\Util\Session;
-use App\Smtp\Validate\MailerValidate;
 use Hyperf\Database\Events\QueryExecuted;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Logger\LoggerFactory;
@@ -17,9 +14,10 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
 use \Redis;
-use App\Smtp\Event\{RcptToEvent};
+use App\Smtp\Event\{DataEvent, HelloEvent};
+use  App\Smtp\Validate\HeloValidate;
 
-class RcptToListener implements ListenerInterface
+class DataListener implements ListenerInterface
 {
     /**
      * @var LoggerInterface
@@ -50,7 +48,7 @@ class RcptToListener implements ListenerInterface
     public function listen(): array
     {
         return [
-            RcptToEvent::class
+            DataEvent::class
         ];
     }
 
@@ -62,12 +60,9 @@ class RcptToListener implements ListenerInterface
         $msg = $Event->msg;
         $fd = $Event->fd;
         $dir = getDirectiveByMsg($msg);
-        // 验证信封
-        (new MailerValidate())->goCheck($fd, $msg);
-        $this->Session->set($fd, 'status', $dir);
-        $this->Session->set($fd, 'is_sequence', 1);
-        $this->Session->set($fd, 'sequence_dirs', json_encode(['RCPT TO', 'QUIT', 'DATA']));
-        $Event->reply = smtp_pack("250 MAIL OK");
-        $this->Session->cacheEmailer($fd, smtp_pack($msg));
+        $Session = $this->Container->get(Session::class);
+        $Session->set($fd, 'status', 'DATA');
+        $Session->set($fd, 'is_sequence', 0);
+        $Event->reply = smtp_pack("354 End data with <CR><LF>.<CR><LF>");
     }
 }

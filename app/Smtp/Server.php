@@ -246,7 +246,6 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
             // 有断开指令且不是写信状态就断开
             $status = $this->Session->getStatusByFd($fd);
             if ($dir === 'QUIT' && $status !== 'DATA') {
-
                 $server->close($fd);
             }
         }

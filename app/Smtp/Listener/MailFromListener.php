@@ -64,6 +64,6 @@ class MailFromListener implements ListenerInterface
         $this->Session->set($fd, 'is_sequence', 1);
         $this->Session->set($fd, 'sequence_dirs', json_encode(['RCPT TO', 'QUIT']));
         $Event->reply = smtp_pack("250 MAIL OK");
-        $this->Session->cacheEmail($fd, smtp_pack($msg));
+        $this->Session->cacheEmailer($fd, smtp_pack($msg));
     }
 }

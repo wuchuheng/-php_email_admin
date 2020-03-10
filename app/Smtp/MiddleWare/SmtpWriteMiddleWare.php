@@ -54,23 +54,13 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
         $fd = $request->getAttribute('fd');
         $dir = getDirectiveByMsg($msg);
         $response = new Psr7Response();
-
-        switch ($dir) {
-            case "MAIL FROM":
-                $reply = smtp_pack("250 mail OK");
-                /* $this->Session->set($fd, 'MAIL FROM', $msg); */
-                break;
-            case "RCPT to":
-                $reply = smtp_pack("250 mail Ok");
-                break;
-            case "DATA":
-                $reply = smtp_pack("354 End data with <CR><LF>.<CR><LF>");
-                $this->Session->set($fd, 'status', 'DATA');
+        if ( $msg === '.' ) {
+            $reply = smtp_pack('250 Mail Ok');
+            $this->Session->set($fd, 'status', 'HELO');
+        } else {
+            $this->Session->cacheEmailData($fd, smtp_pack($msg));
+            $reply = '';
         }
-
-        !isset($reply) && $reply = smtp_pack("250 mail Ok");
-
-//        var_dump($msg);
         return $response->withBody(new SwooleStream($reply));
     }
 }

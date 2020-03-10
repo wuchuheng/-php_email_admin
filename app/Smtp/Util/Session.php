@@ -173,16 +173,30 @@ class Session
     }
 
     /**
-     * 缓存邮件内容
+     * 缓存邮件信封.
      *
      * @param int $fd
      * @param string $content
      * @return bool
      */
-    public function cacheEmail(int $fd, string $content = ''): bool
+    public function cacheEmailer(int $fd, string $content = ''): bool
     {
-        $email = $this->get($fd, 'email');
+        $email = $this->get($fd, 'emailer');
         $email .= $content;
-        return (bool) $this->set($fd, 'email', $email);
+        return (bool) $this->set($fd, 'emailer', $email);
+    }
+
+    /**
+     * 缓存邮件内容.
+     *
+     * @param int $fd
+     * @param string $content
+     * @return bool
+     */
+    public function cacheEmailData(int $fd, string $content = ''): bool
+    {
+        $email = $this->get($fd, 'email_data');
+        $email .= $content;
+        return (bool) $this->set($fd, 'email_data', $email);
     }
 }

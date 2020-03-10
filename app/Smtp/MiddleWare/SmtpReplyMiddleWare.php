@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace App\Smtp\MiddleWare;
 
-use App\Smtp\Event\MailFromEvent;
-use App\Smtp\Event\QuitEvent;
-use App\Smtp\Event\RcptToEvent;
+
 use App\Exception\{SmtpBadSequenceException};
 use Hyperf\HttpMessage\Server\Response as Psr7Response;
 use Hyperf\HttpMessage\Stream\SwooleStream;
@@ -26,7 +24,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 use \App\Smtp\Util\Session;
 use Hyperf\Di\Annotation\Inject;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use \App\Smtp\Event\HelloEvent;
+use \App\Smtp\Event\{
+    HelloEvent,
+    DataEvent,
+    MailFromEvent
+};
+use App\Smtp\Event\QuitEvent;
+use App\Smtp\Event\RcptToEvent;
 
     class SmtpReplyMiddleWare implements MiddlewareInterface
     {
@@ -78,6 +82,9 @@ use \App\Smtp\Event\HelloEvent;
                     break;
                 case 'RCPT TO':
                     $Response = $this->EventDispatcher->dispatch(new RcptToEvent($fd, $msg));
+                    break;
+                case 'DATA' :
+                    $Response = $this->EventDispatcher->dispatch(new DataEvent($fd, $msg));
                     break;
                 default:
                     throw new SmtpBadSequenceException();
