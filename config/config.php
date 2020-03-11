@@ -40,5 +40,7 @@ return [
         'EXPN',
         'HELP'
     ],
-    'smtp_session_prefix' => 'smtp_'
+    'smtp_session_prefix' => 'smtp_',
+    // 邮件eml保存位置
+    'email_save_dir'      => '/stages/emails'
 ];

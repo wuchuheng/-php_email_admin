@@ -195,8 +195,23 @@ class Session
      */
     public function cacheEmailData(int $fd, string $content = ''): bool
     {
-        $email = $this->get($fd, 'email_data');
-        $email .= $content;
-        return (bool) $this->set($fd, 'email_data', $email);
+        $redis = $this->container->get(\Redis::class);
+        $queue_name = $this->getKey($fd) . 'email_data_queue';
+        return (bool) $redis->rPush($queue_name, $content);
+    }
+
+    /**
+     * 获取缓存的邮件内容
+     *
+     */
+    public function getCacheEmailData(int $fd): string
+    {
+        $content = '';
+        $redis = $this->container->get(\Redis::class);
+        $queue_name = $this->getKey($fd) . 'email_data_queue';
+        while($redis->lLen($queue_name)) {
+            $content .= $redis->lPop($queue_name);
+        }
+        return $content;
     }
 }

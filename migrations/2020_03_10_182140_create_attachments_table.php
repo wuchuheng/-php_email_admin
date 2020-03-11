@@ -4,18 +4,17 @@ use Hyperf\Database\Schema\Schema;
 use Hyperf\Database\Schema\Blueprint;
 use Hyperf\Database\Migrations\Migration;
 
-class CreateEmailsTable extends Migration
+class CreateAttachmentsTable extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('emails', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('mail_from', 100);
-            $table->string('rcpt_to', 100);
-            $table->longText('data');
+            $table->string('file')->comment('附件');
+            $table->integer('email_id')->comment('邮件id');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ class CreateEmailsTable extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('emails');
+        Schema::dropIfExists('attachments');
     }
 }

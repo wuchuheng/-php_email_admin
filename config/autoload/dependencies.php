@@ -11,5 +11,6 @@ declare(strict_types=1);
  */
 
 return [
-    \App\Smtp\Util\Session::class => \App\Smtp\Util\Session::class
+    \App\Smtp\Util\Session::class    => \App\Smtp\Util\Session::class,
+    \PhpMimeMailParser\Parser::class => \PhpMimeMailParser\Parser::class
 ];

@@ -60,6 +60,9 @@ class MailFromListener implements ListenerInterface
         $dir = getDirectiveByMsg($msg);
         // 验证信封
         (new MailerValidate())->goCheck($fd, $msg);
+        $patten = "/<([a-zA-Z0-9_-]+)@[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+>/";
+        preg_match($patten, $msg, $user_names);
+        $this->Session->set($fd, 'user', $user_names[1]);
         $this->Session->set($fd, 'status', $dir);
         $this->Session->set($fd, 'is_sequence', 1);
         $this->Session->set($fd, 'sequence_dirs', json_encode(['RCPT TO', 'QUIT']));

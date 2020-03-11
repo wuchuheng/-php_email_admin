@@ -25,7 +25,18 @@ class Email extends Model
      *
      * @var array
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'from',
+        'to',
+        'text',
+        'html',
+        'date',
+        'subject',
+        'is_read',
+        'eml',
+        'to_name',
+        'from_name'
+    ];
     /**
      * The attributes that should be cast to native types.
      *

@@ -43,7 +43,8 @@ RUN set -ex \
     && echo "${TIMEZONE}" > /etc/timezone \
     # ---------- clear works ----------
     && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
-    && echo -e "\033[42;37m Build Completed :).\033[0m\n"
+    && echo -e "\033[42;37m Build Completed :).\033[0m\n" 
+    && apk add php7-mailparse
 
 WORKDIR /opt/www
 
