@@ -22,6 +22,7 @@ use App\Exception\{
 use \App\Smtp\Validate\{
     MailerValidate
 };
+use App\Smtp\Server;
 
 class SmtpUnnecessarilyMiddleWare implements MiddlewareInterface
 {
@@ -48,8 +49,8 @@ class SmtpUnnecessarilyMiddleWare implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $fd = $request->getAttribute('fd');
         $msg = smtp_unpack($request->getAttribute('data'));
+        $fd = $request->getAttribute('fd');
         $status = $this->container->get(Session::class)->getStatusByFd($fd);
         $is_dir = getDirectiveByMsg($msg);
         $Session = $this->container->get(Session::class);

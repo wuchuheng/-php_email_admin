@@ -267,6 +267,11 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
     {
         $request = $response = null;
         try {
+            // 缓存邮件数据
+            if (isset($this->data[$fd]['status']) && $this->data[$fd]['status'] === 'DATA')  {
+                !isset($this->data[$fd]['data']) && $this->data[$fd]['data'] = '';
+                $this->data[$fd]['data'] .= $data;
+            }
             // Initialize PSR-7 Request and Response objects.
             Context::set(ServerRequestInterface::class, $request = $this->buildRequest($fd, $fromId, $data));
             Context::set(ResponseInterface::class, $this->buildResponse($fd, $server));
@@ -295,6 +300,7 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
     {
         // 清空断开的会话数据,防止同一fd数据相混
         /* $this->Session->removeAllByFd($from_id); */
+        unset($this->data[$fd]);
     }
 
     protected function transferToResponse($response): ?ResponseInterface

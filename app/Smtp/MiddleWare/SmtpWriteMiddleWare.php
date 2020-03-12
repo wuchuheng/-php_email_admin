@@ -25,6 +25,7 @@ use App\Model\{
     Attachment
 };
 use \PhpMimeMailParser\Parser;
+use App\Smtp\Server;
 
 class SmtpWriteMiddleWare implements MiddlewareInterface
 {
@@ -68,7 +69,10 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
             $reply = smtp_pack('250 Mail Ok');
             $this->Session->set($fd, 'status', 'HELO');
             // 收集邮件数据并导出eml
-            $email_data = $this->Session->getCacheEmailData($fd);
+            $Server = $this->container->get(Server::class);
+            $email_data = $Server->data[$fd]['data'];
+            $Server->data[$fd]['data']   = '';
+            $Server->data[$fd]['status'] = '';
             $relatively_path = config('email_save_dir') . "/" . $this->Session->get($fd, 'user') . '/' . date('Y-m-d-h-i-s') . '_' . uniqid() . '.eml';
             $file = BASE_PATH . $relatively_path;
             is_dir(dirname($file)) || mkdir(dirname($file), 0700, true);
@@ -92,6 +96,13 @@ class SmtpWriteMiddleWare implements MiddlewareInterface
                 'html'      => $Parser->getMessageBody('html'),
                 'eml'       => $file,
             ]);
+            $attachments = $Parser->getAttachments(false);
+            /* foreach ($attachments as $attachment) { */
+            /*     echo 'Filename : '.$attachment->getFilename(). PHP_EOL; */
+            /*     echo 'Filesize : '.filesize($attach_dir.$attachment->getFilename()). PHP_EOL; */
+            /*     echo 'Filetype : '.$attachment->getContentType(). PHP_EOL; */
+            /*     echo 'MIME part string : '.$attachment->getMimePartStr(). PHP_EOL; */
+            /* } */
         } else {
             // 缓存邮件数据
             $this->Session->cacheEmailData($fd, smtp_pack($msg));

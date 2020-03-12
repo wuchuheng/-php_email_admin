@@ -15,7 +15,8 @@ use Psr\Log\LoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
 use \Redis;
 use App\Smtp\Event\{DataEvent, HelloEvent};
-use  App\Smtp\Validate\HeloValidate;
+use App\Smtp\Validate\HeloValidate;
+use App\Smtp\Server;
 
 class DataListener implements ListenerInterface
 {
@@ -64,5 +65,8 @@ class DataListener implements ListenerInterface
         $Session->set($fd, 'status', 'DATA');
         $Session->set($fd, 'is_sequence', 0);
         $Event->reply = smtp_pack("354 End data with <CR><LF>.<CR><LF>");
+        // server 的onReceive缓存下数据
+        $Server = $this->Container->get(Server::class);
+        $Server->data[$fd]['status'] = 'DATA';
     }
 }
