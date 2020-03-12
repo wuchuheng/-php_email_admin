@@ -300,7 +300,7 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
     {
         // 清空断开的会话数据,防止同一fd数据相混
         /* $this->Session->removeAllByFd($from_id); */
-        unset($this->data[$fd]);
+        unset($this->data[$from_id]);
     }
 
     protected function transferToResponse($response): ?ResponseInterface
