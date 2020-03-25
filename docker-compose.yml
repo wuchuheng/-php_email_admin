@@ -17,6 +17,12 @@ services:
           - "redis"
           # - "mysql"
         container_name: hyperf_container
+        command:
+          - /bin/sh
+          - -c
+          - |
+            php bin/hyperf.php start
+
     redis:
         image: redis:${REDIS_VERSION}
         restart: always

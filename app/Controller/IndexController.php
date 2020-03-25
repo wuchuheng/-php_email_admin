@@ -13,16 +13,22 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Exception\SmtpNotImplementedException;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
 
+/**
+ * @Controller()
+ * Class IndexController
+ * @package App\Controller
+ */
 class IndexController extends AbstractController
 {
+    /**
+     * @RequestMapping(path="/test", methods="get,post")
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public function index()
     {
         return $this->response->json(111);
-    }
-
-    public function excption()
-    {
-        var_dump(1);
     }
 }
