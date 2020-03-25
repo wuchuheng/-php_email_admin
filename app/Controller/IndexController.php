@@ -18,9 +18,7 @@ class IndexController extends AbstractController
 {
     public function index()
     {
-        throw new \RuntimeException('test');
-
-        return 1;
+        return $this->response->json(111);
     }
 
     public function excption()

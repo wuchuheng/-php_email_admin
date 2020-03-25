@@ -15,7 +15,7 @@ services:
           - default
         depends_on:
           - "redis"
-          - "mysql"
+          # - "mysql"
         container_name: hyperf_container
     redis:
         image: redis:${REDIS_VERSION}
@@ -35,18 +35,18 @@ services:
           - REDIS_1_HOST=redis
           - REDIS_1_PORT=6379
         container_name: phpredisadmin
-    mysql:
-        image: mysql:${MYSQL_VERSION}
-        ports:
-          - "${MYSQL_HOST_PORT}:3306"
-        volumes:
-          - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf:ro
-          #- ${MYSQL_DATA_DIR}:/var/lib/mysql/:rw
-        restart: always
-        networks:
-          - default
-        environment:
-          MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-        container_name: mysql
+        #mysql:
+        #mysqimage: mysql:${MYSQL_VERSION}
+        #mysqports:
+        #mysq  - "${MYSQL_HOST_PORT}:3306"
+        #mysqvolumes:
+        #mysq  - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/mysql.cnf:ro
+        #mysq  #- ${MYSQL_DATA_DIR}:/var/lib/mysql/:rw
+        #mysqrestart: always
+        #mysqnetworks:
+        #mysq  - default
+        #mysqenvironment:
+        #mysq  MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+        #mysqcontainer_name: mysql
 networks:
     default:
