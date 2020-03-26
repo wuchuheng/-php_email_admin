@@ -40,7 +40,8 @@
         "hyperf/rpc-server": "^1.1",
         "hyperf/session": "^1.1",
         "hyperf/validation": "^1.1",
-        "php-mime-mail-parser/php-mime-mail-parser": "^6.0"
+        "php-mime-mail-parser/php-mime-mail-parser": "^6.0",
+        "hyperf/filesystem": "^1.1"
     },
     "require-dev": {
         "swoft/swoole-ide-helper": "^4.2",
