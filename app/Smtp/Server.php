@@ -246,7 +246,7 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
             // 有断开指令且不是写信状态就断开
             $status = $this->Session->getStatusByFd($fd);
             if ($dir === 'QUIT' && $status !== 'DATA') {
-                $server->close($fd);
+                //$server->close($fd);
             }
         }
 
@@ -269,7 +269,7 @@ class Server  implements OnReceiveInterface, MiddlewareInitializerInterface
         try {
             // 缓存邮件数据
             if (isset($this->data[$fd]['status']) && $this->data[$fd]['status'] === 'DATA')  {
-                !isset($this->data[$fd]['data']) && $this->data[$fd]['data'] = '';
+                !isset($this->data[$fd]['data']) and  $this->data[$fd]['data'] = '';
                 $this->data[$fd]['data'] .= $data;
             }
             // Initialize PSR-7 Request and Response objects.

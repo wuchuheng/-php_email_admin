@@ -27,6 +27,9 @@ class Attachment extends Model
     protected $fillable = [
         'file',
         'email_id',
+        'name',
+        'type',
+        'size'
     ];
     /**
      * The attributes that should be cast to native types.

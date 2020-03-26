@@ -21,8 +21,7 @@ services:
           - /bin/sh
           - -c
           - |
-            php bin/hyperf.php start
-
+            php watch.php -c
     redis:
         image: redis:${REDIS_VERSION}
         restart: always

@@ -14,6 +14,10 @@ use Psr\Container\ContainerInterface;
 class Session
 {
     /**
+     */
+    public $data;
+
+    /**
      * @var ContainerInterface
      */
     protected $container;
@@ -32,13 +36,7 @@ class Session
      */
     public  function getAllByFd(int $fd)
     {
-        $redis = $this->container->get(\Redis::class);
-        $key = $this->getKey($fd);
-        if ($redis->exists(config('smtp_session_prefix') . $fd)) {
-            return [];
-        } else {
-            return $redis->key($key);
-        }
+        return $this->data[$fd] ?? null;
     }
 
     /**
@@ -49,9 +47,8 @@ class Session
      */
     public function set(int $fd, string $hash_key, ?string $data)
     {
-        $Redis = $this->container->get(\Redis::class);
-        $key = $this->getKey($fd);
-        return (bool) $Redis->hset($key, $hash_key, $data);
+        $this->data[$fd][$hash_key] = $data;
+        return true;
     }
 
     /**
@@ -61,11 +58,9 @@ class Session
      * @param string $key
      * @return bool
      */
-    public function has(int $fd, string $key)
+    public function has(int $fd, string $key) : bool
     {
-        $redis_key = $this->getKey($fd);
-        $Redis = $this->container->get(\Redis::class);
-        return $Redis->hExists($redis_key, $key);
+        return (bool) isset($this->data[$fd][$key]);
     }
 
     /**
@@ -76,27 +71,7 @@ class Session
      */
     public function getStatusByFd(int $fd): string
     {
-        $redis_key = $this->getKey($fd);
-        $Redis = $this->container->get(\Redis::class);
-        if (!$Redis->exists($redis_key)) {
-            return 'int';
-        } else if (!$Redis->hExists($redis_key, 'status')) {
-            return 'int';
-        } else {
-            return $Redis->hGet($redis_key, 'status');
-        }
-
-    }
-
-    /**
-     * get session key.
-     *
-     * @param int $fd
-     * @return string
-     */
-    private function getKey(int $fd): string
-    {
-        return config('smtp_session_prefix') . $fd;
+        return $this->data[$fd]['status'] ?? 'init';
     }
 
     /**
@@ -106,12 +81,9 @@ class Session
      * @return string
      */
 
-    public function get(int $fd, string $hkey): string
+    public function get(int $fd, string $hkey)
     {
-        $key = $this->getKey($fd);
-        $Redis = $this->container->get(\Redis::class);
-        $value = $Redis->hGet($key,$hkey);
-        return $value;
+       return $this->data[$fd][$hkey] ?? null;
     }
 
     /**
@@ -119,9 +91,7 @@ class Session
     */
     public function removeAllByFd(int $fd): bool
     {
-        $redis_key = $this->getKey($fd);
-        $Redis = $this->container->get(\Redis::class);
-        return (bool) $Redis->del($redis_key);
+       unset($this->data[$fd]);
     }
 
     /**
@@ -131,10 +101,11 @@ class Session
      */
     public function init(int $fd): bool
     {
-        return (bool) $this->set($fd, 'is_hello', 0)
-            && $this->set($fd, 'is_sequence', 0)
-            && $this->set($fd, 'sequence_dirs', json_encode([]))
-            && $this->set($fd, 'email', '');
+        $this->data[$fd]['is_hello'] = 0;
+        $this->data[$fd]['is_sequence'] = 0;
+        $this->data[$fd]['sequence_dirs'] = json_encode([]);
+        $this->data[$fd]['email'] = '';
+        return true;
     }
 
     /**
@@ -187,31 +158,18 @@ class Session
     }
 
     /**
-     * 缓存邮件内容.
-     *
+     * 连接会话数据
      * @param int $fd
-     * @param string $content
-     * @return bool
+     * @return array|mixed
      */
-    public function cacheEmailData(int $fd, string $content = ''): bool
+    private function _getConnectSessionByFd(int $fd): array
     {
-        $redis = $this->container->get(\Redis::class);
-        $queue_name = $this->getKey($fd) . 'email_data_queue';
-        return (bool) $redis->rPush($queue_name, $content);
-    }
-
-    /**
-     * 获取缓存的邮件内容
-     *
-     */
-    public function getCacheEmailData(int $fd): string
-    {
-        $content = '';
-        $redis = $this->container->get(\Redis::class);
-        $queue_name = $this->getKey($fd) . 'email_data_queue';
-        while($redis->lLen($queue_name)) {
-            $content .= $redis->lPop($queue_name);
+        if(isset($_connect_session)) {
+            return $_connect_session[$fd] ?? [];
+        } else {
+            global $_connect_session;
+            $_connect_session[$fd] = [];
+            return $_connect_session[$fd];
         }
-        return $content;
     }
 }

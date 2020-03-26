@@ -16,3 +16,4 @@ tags
 tmp.php
 .*.sw.
 stages/emails/
+public/uploads/
